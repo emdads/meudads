@@ -1,8 +1,11 @@
 {
   "dependencies": {
     "@hono/zod-validator": "^0.5.0",
+    "@neondatabase/serverless": "^1.0.1",
+    "@types/pg": "^8.15.5",
     "hono": "4.7.7",
     "lucide-react": "^0.510.0",
+    "pg": "^8.16.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router": "^7.5.3",
@@ -34,7 +37,8 @@
   "name": "mocha-app",
   "private": true,
   "scripts": {
-    "build": "if [ -f tsconfig-nextjs.json ] && [ -f node_modules/.bin/next ]; then cp tsconfig-nextjs.json tsconfig.json && next build; else tsc -b && vite build; fi",
+    "build": "tsc && vite build",
+    "build:vercel": "tsc --outDir dist && cp -r dist/src/* ./",
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "dev": "vite",
