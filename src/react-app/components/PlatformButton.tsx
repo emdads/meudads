@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { AD_PLATFORMS } from '@/shared/platforms';
+import { AD_PLATFORMS } from '../../shared/platforms';
 
 interface PlatformButtonProps {
   platform: string;
