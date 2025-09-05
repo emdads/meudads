@@ -1,10 +1,33 @@
 // Vercel-specific adaptations for the worker
 import type { Env } from './env';
-import { Pool } from '@neondatabase/serverless';
-import { NeonDatabaseAdapter, createDatabaseAdapter } from '../shared/database';
+
+// Import Neon dynamically to avoid bundling issues
+let Pool: any = null;
+let NeonDatabaseAdapter: any = null;
+
+// Dynamic imports for Vercel compatibility
+async function initializeNeonDependencies() {
+  if (!Pool) {
+    try {
+      const neonModule = await import('@neondatabase/serverless');
+      Pool = neonModule.Pool;
+      
+      const dbModule = await import('../shared/database');
+      NeonDatabaseAdapter = dbModule.NeonDatabaseAdapter;
+      
+      console.log('[VERCEL] Neon dependencies loaded successfully');
+    } catch (error) {
+      console.error('[VERCEL] Failed to load Neon dependencies:', error);
+      throw new Error('Failed to initialize Neon database connection');
+    }
+  }
+}
 
 // Create real environment for Vercel with Neon database
-export function createVercelEnv(processEnv: NodeJS.ProcessEnv): Env {
+export async function createVercelEnv(processEnv: NodeJS.ProcessEnv): Promise<Env> {
+  // Initialize dependencies first
+  await initializeNeonDependencies();
+  
   // Create Neon database connection
   const databaseUrl = processEnv.DATABASE_URL || processEnv.POSTGRES_URL;
   
