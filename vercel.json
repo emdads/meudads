@@ -3,6 +3,7 @@
   "buildCommand": "npx vite build --config vite.config.vercel.ts",
   "framework": null,
   "outputDirectory": "dist",
+  "runtime": "nodejs18.x",
   "functions": {
     "api/index.js": {
       "runtime": "@vercel/node@2.15.10"
