@@ -1,5 +1,12 @@
 {
   "installCommand": "cp package-vercel.json package.json && npm install",
-  "buildCommand": "npm run build",
-  "framework": "nextjs"
+  "buildCommand": "npm run build:vercel",
+  "framework": null,
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
