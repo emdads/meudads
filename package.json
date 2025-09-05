@@ -34,7 +34,7 @@
   "name": "mocha-app",
   "private": true,
   "scripts": {
-    "build": "if [ -f tsconfig-nextjs.json ]; then cp tsconfig-nextjs.json tsconfig.json && next build; else tsc -b && vite build; fi",
+    "build": "if [ -f tsconfig-nextjs.json ] && [ -f node_modules/.bin/next ]; then cp tsconfig-nextjs.json tsconfig.json && next build; else tsc -b && vite build; fi",
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "dev": "vite",
