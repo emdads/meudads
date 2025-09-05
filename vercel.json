@@ -3,11 +3,7 @@
   "buildCommand": "npx vite build --config vite.config.vercel.ts",
   "framework": null,
   "outputDirectory": "dist",
-  "functions": {
-    "api/index.js": {
-      "runtime": "@vercel/node"
-    }
-  },
+  
   "rewrites": [
     {
       "source": "/api/(.*)",
