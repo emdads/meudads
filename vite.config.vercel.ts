@@ -1,3 +1,4 @@
+import path from "path";
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -6,13 +7,17 @@ export default defineConfig({
   root: '.',
   build: {
     outDir: 'dist',
+    chunkSizeWarningLimit: 5000,
     rollupOptions: {
       input: 'index.html'
     }
   },
   resolve: {
     alias: {
-      '@': '/src/react-app'
+      '@': path.resolve(__dirname, "./src/react-app")
     }
+  },
+  server: {
+    allowedHosts: true,
   }
 })
