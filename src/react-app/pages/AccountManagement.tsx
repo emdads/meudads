@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useAuth, useAuthFetch } from '../hooks/useAuth';
 import { Settings, AlertCircle, BarChart3, List, Database } from 'lucide-react';
 import AdAccountManager from '../components/AdAccountManager';
