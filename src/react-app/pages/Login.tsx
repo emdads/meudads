@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Navigate } from 'react-router';
+import { Navigate } from 'react-router-dom';
 import { TrendingUp, LogIn, Eye, EyeOff, AlertCircle, Mail } from 'lucide-react';
 
 export default function Login() {
