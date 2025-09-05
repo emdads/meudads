@@ -210,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       removeStoredToken();
       setUser(null);
       setPermissions([]);
+      setLoading(false); // ✅ Definir loading como false para evitar piscar da tela
       console.log('[AUTH-DEBUG] ✅ Logout completed, explicit flag set');
     }
   };
