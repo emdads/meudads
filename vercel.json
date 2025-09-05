@@ -1,6 +1,6 @@
 {
   "installCommand": "cp package-vercel.json package.json && npm install",
-  "buildCommand": "npm run build:vercel",
+  "buildCommand": "vite build",
   "framework": null,
   "outputDirectory": "dist",
   "rewrites": [
