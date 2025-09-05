@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { 
   TrendingUp, 
   User, 
