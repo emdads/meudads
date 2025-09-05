@@ -33,6 +33,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SESSION_TOKEN_KEY = 'meudads_session_token';
+const EXPLICIT_LOGOUT_KEY = 'meudads_explicit_logout';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -49,6 +50,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const removeStoredToken = () => {
     localStorage.removeItem(SESSION_TOKEN_KEY);
+  };
+
+  const setExplicitLogout = () => {
+    localStorage.setItem(EXPLICIT_LOGOUT_KEY, 'true');
+  };
+
+  const clearExplicitLogout = () => {
+    localStorage.removeItem(EXPLICIT_LOGOUT_KEY);
+  };
+
+  const isExplicitLogout = () => {
+    return localStorage.getItem(EXPLICIT_LOGOUT_KEY) === 'true';
   };
 
   const getAuthHeaders = () => {
@@ -83,16 +96,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     try {
       const token = getStoredToken();
+      const explicitLogout = isExplicitLogout();
+      
       console.log('[AUTH-DEBUG] Checking token:', token ? 'exists' : 'not found');
+      console.log('[AUTH-DEBUG] Explicit logout:', explicitLogout);
       
       if (!token) {
-        // For development - auto login as admin if no token
-        console.log('[AUTH-DEBUG] No token found, attempting auto-login for development');
-        try {
-          await login('admin@meudads.com.br', 'admin123');
-          return;
-        } catch (autoLoginError) {
-          console.log('[AUTH-DEBUG] Auto-login failed:', autoLoginError);
+        // Só fazer auto-login se não foi um logout explícito
+        if (!explicitLogout) {
+          console.log('[AUTH-DEBUG] No token found, attempting auto-login for development');
+          try {
+            await login('admin@meudads.com.br', 'admin123');
+            return;
+          } catch (autoLoginError) {
+            console.log('[AUTH-DEBUG] Auto-login failed:', autoLoginError);
+            setUser(null);
+            setPermissions([]);
+            setLoading(false);
+            return;
+          }
+        } else {
+          console.log('[AUTH-DEBUG] Explicit logout detected, not attempting auto-login');
           setUser(null);
           setPermissions([]);
           setLoading(false);
@@ -157,7 +181,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setStoredToken(data.token);
         setUser(data.user);
         setPermissions(data.permissions || []);
-        setLoading(false); // ✅ Importante: definir loading como false após login
+        setLoading(false);
+        // Limpar flag de logout explícito quando fizer login com sucesso
+        clearExplicitLogout();
       } else {
         console.log('[AUTH-DEBUG] ❌ Login failed:', data.error);
         throw new Error(data.error || 'Erro no login');
@@ -170,6 +196,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      // Marcar como logout explícito ANTES de remover o token
+      setExplicitLogout();
+      
       const token = getStoredToken();
       if (token) {
         // Tentar revogar o token no servidor
@@ -181,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       removeStoredToken();
       setUser(null);
       setPermissions([]);
+      console.log('[AUTH-DEBUG] ✅ Logout completed, explicit flag set');
     }
   };
 
