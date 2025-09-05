@@ -37,8 +37,8 @@ export default async function handler(req, res) {
 
     console.log('[VERCEL-API] Created request:', request.method, request.url);
 
-    // Create real environment using the adapter
-    const env = createVercelEnv(process.env);
+    // Create real environment using the adapter (now async)
+    const env = await createVercelEnv(process.env);
     
     console.log('[VERCEL-API] Environment configured:', {
       hasDB: !!env.DB,
