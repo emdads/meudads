@@ -1,37 +1,70 @@
 {
   "name": "meudads-vercel",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "description": "MeuDads - Sistema de Gestão de Anúncios (Vercel + Neon)",
+  "main": "pages/index.tsx",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:vercel": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint ."
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "node scripts/reset.js",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
   },
   "dependencies": {
-    "@prisma/client": "^5.21.1",
-    "@tanstack/react-query": "^5.60.5",
-    "hono": "^4.6.5",
-    "lucide-react": "^0.510.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "zod": "^3.24.3"
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@neondatabase/serverless": "^0.9.0",
+    "pg": "^8.11.0",
+    "@types/pg": "^8.10.0",
+    "zod": "^3.22.0",
+    "bcryptjs": "^2.4.3",
+    "@types/bcryptjs": "^2.4.6",
+    "jsonwebtoken": "^9.0.2",
+    "@types/jsonwebtoken": "^9.0.5",
+    "resend": "^3.2.0",
+    "lucide-react": "^0.363.0",
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^2.2.0",
+    "react-router": "^6.22.0",
+    "react-router-dom": "^6.22.0"
   },
   "devDependencies": {
-    "@types/node": "^22.9.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9.14.0",
-    "globals": "^15.12.0",
-    "postcss": "^8.5.3",
-    "prisma": "^5.21.1",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.6.3",
-    "vite": "^6.0.2"
-  }
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/meudads.git"
+  },
+  "keywords": [
+    "ads",
+    "meta",
+    "facebook",
+    "instagram",
+    "advertising",
+    "management",
+    "vercel",
+    "neon",
+    "postgresql"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }
