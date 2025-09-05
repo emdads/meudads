@@ -1,5 +1,5 @@
-// JavaScript compiled version for Vercel
-const { Hono } = require("hono");
+// JavaScript compiled version for Vercel - ES Modules
+import { Hono } from "hono";
 
 // Simple re-export of the TypeScript worker
 // This ensures Vercel can import the worker even if TypeScript compilation fails
@@ -29,7 +29,5 @@ const createSimpleHandler = () => {
 
 const app = createSimpleHandler();
 
-module.exports = {
-  default: app,
-  fetch: app.fetch.bind(app)
-};
+export default app;
+export const fetch = app.fetch.bind(app);
