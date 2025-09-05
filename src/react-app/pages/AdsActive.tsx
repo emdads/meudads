@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, useSearchParams } from 'react-router';
+import { useParams, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth, useAuthFetch } from '../hooks/useAuth';
 import { Target, Filter, CheckSquare, Square, BarChart3, RefreshCw, Save, AlertCircle, Settings, ChevronUp, ChevronDown, ArrowUp, ArrowDown, X, Minus, Plus, Users, ArrowLeft } from 'lucide-react';
 import AdAccountSelector from '../components/AdAccountSelector';
