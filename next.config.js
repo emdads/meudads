@@ -1,55 +1,77 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    domains: [
-      'images.unsplash.com',
-      'via.placeholder.com',
-      'scontent.fbsb10-1.fna.fbcdn.net',
-      'scontent-sjc3-1.xx.fbcdn.net',
-      'external.fbsb10-1.fna.fbcdn.net',
-      'mocha-cdn.com'
-    ],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.fbcdn.net',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.facebook.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.instagram.com',
-      }
-    ]
-  },
+  // Enable experimental features for modern deployment
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client']
+    appDir: true,
+    serverComponentsExternalPackages: ['@neondatabase/serverless'],
   },
-  async redirects() {
+  
+  // Environment variables
+  env: {
+    DATABASE_PLATFORM: process.env.DATABASE_PLATFORM || 'neon',
+    DEPLOYMENT_PLATFORM: process.env.DEPLOYMENT_PLATFORM || 'vercel',
+  },
+  
+  // API routes configuration
+  async rewrites() {
     return [
+      // Rewrite API routes to maintain compatibility
       {
-        source: '/c/:slug',
-        destination: '/c/:slug/creatives/active',
-        permanent: true,
+        source: '/api/:path*',
+        destination: '/api/:path*',
       },
-    ]
+    ];
   },
+  
+  // Headers for better security
   async headers() {
     return [
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
         ],
       },
-    ]
+    ];
   },
-}
+  
+  // Webpack configuration for compatibility
+  webpack: (config, { isServer }) => {
+    // Handle node modules that need special treatment
+    if (isServer) {
+      config.externals.push('@neondatabase/serverless');
+    }
+    
+    return config;
+  },
+  
+  // Output configuration for static export (if needed)
+  output: process.env.NEXT_EXPORT === 'true' ? 'export' : 'standalone',
+  trailingSlash: false,
+  
+  // Images configuration
+  images: {
+    domains: [
+      'images.unsplash.com',
+      'via.placeholder.com',
+      'scontent.cdninstagram.com',
+      'scontent-*.cdninstagram.com',
+      'lookaside.fbsbx.com',
+      '*.fbcdn.net',
+    ],
+    unoptimized: process.env.NEXT_EXPORT === 'true',
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
