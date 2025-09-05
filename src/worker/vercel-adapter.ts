@@ -5,15 +5,15 @@ import type { Env } from './env';
 let Pool: any = null;
 let NeonDatabaseAdapter: any = null;
 
-// Dynamic imports for Vercel compatibility
+// Direct imports for Vercel - no dynamic loading needed since packages are bundled
+import { Pool as NeonPool } from '@neondatabase/serverless';
+import { NeonDatabaseAdapter as DatabaseAdapter } from '../shared/database';
+
 async function initializeNeonDependencies() {
   if (!Pool) {
     try {
-      const neonModule = await import('@neondatabase/serverless');
-      Pool = neonModule.Pool;
-      
-      const dbModule = await import('../shared/database');
-      NeonDatabaseAdapter = dbModule.NeonDatabaseAdapter;
+      Pool = NeonPool;
+      NeonDatabaseAdapter = DatabaseAdapter;
       
       console.log('[VERCEL] Neon dependencies loaded successfully');
     } catch (error) {
