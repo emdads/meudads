@@ -1,6 +1,6 @@
 {
   "installCommand": "cp package-vercel.json package.json && npm install",
-  "buildCommand": "npx vite build",
+  "buildCommand": "npx vite build --config vite.config.vercel.ts",
   "framework": null,
   "outputDirectory": "dist",
   "rewrites": [
