@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth, useAuthFetch } from '../hooks/useAuth';
 import { List, ArrowLeft, Trash2, Pause, User, Hash, Target, CheckCircle, XCircle, Edit, Play, FileText, Clock, CheckSquare, RotateCcw, Flag, AlertCircle } from 'lucide-react';
-import { OBJECTIVES_PT } from '@/shared/types';
+import { OBJECTIVES_PT } from '../../shared/types';
 import SelectionStatusBadge from '../components/SelectionStatusBadge';
 import SelectionStatusModal from '../components/SelectionStatusModal';
 
