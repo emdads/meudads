@@ -54,16 +54,17 @@ export class D1DatabaseAdapter implements DatabaseAdapter {
   }
 }
 
-// Neon PostgreSQL Adapter (for Vercel)
+// Neon PostgreSQL Adapter (for Vercel) - banco já existe, apenas conecta
 export class NeonDatabaseAdapter implements DatabaseAdapter {
   public platform: 'vercel-neon' = 'vercel-neon';
   
-  constructor(private pool: any) {} // Use pg or neon client
+  constructor(private pool: any) {}
 
   async query<T>(sql: string, params: any[] = []): Promise<T[]> {
     try {
       // Convert SQLite placeholders (?) to PostgreSQL ($1, $2, etc.)
       const pgSql = this.convertPlaceholders(sql);
+      
       const result = await this.pool.query(pgSql, params);
       return result.rows as T[];
     } catch (error) {
@@ -80,6 +81,7 @@ export class NeonDatabaseAdapter implements DatabaseAdapter {
   async execute(sql: string, params: any[] = []): Promise<{ changes: number; lastInsertId?: string | number }> {
     try {
       const pgSql = this.convertPlaceholders(sql);
+      
       const result = await this.pool.query(pgSql, params);
       return {
         changes: result.rowCount || 0,
@@ -111,6 +113,31 @@ export class NeonDatabaseAdapter implements DatabaseAdapter {
   private convertPlaceholders(sql: string): string {
     let index = 0;
     return sql.replace(/\?/g, () => `$${++index}`);
+  }
+
+  // Method to implement D1-like interface
+  prepare(sql: string) {
+    return {
+      bind: (...params: any[]) => ({
+        all: async () => {
+          const results = await this.query(sql, params);
+          return { results };
+        },
+        first: async () => {
+          return await this.querySingle(sql, params);
+        },
+        run: async () => {
+          const result = await this.execute(sql, params);
+          return {
+            success: true,
+            meta: { 
+              changes: result.changes, 
+              last_row_id: result.lastInsertId 
+            }
+          };
+        }
+      })
+    };
   }
 }
 
@@ -174,10 +201,14 @@ export function createDatabaseAdapter(env: any): DatabaseAdapter {
   if (env.DB && typeof env.DB.prepare === 'function') {
     // Cloudflare D1
     return new D1DatabaseAdapter(env.DB);
+  } else if (env.DB && env.DB.platform === 'vercel-neon') {
+    // Already a Neon adapter
+    return env.DB;
   } else if (env.DATABASE_URL || env.POSTGRES_URL) {
-    // Neon/Vercel PostgreSQL
-    // Note: You'll need to install pg or @neondatabase/serverless
-    throw new Error('Neon adapter not yet implemented - install required dependencies');
+    // Create Neon adapter
+    const { Pool } = require('@neondatabase/serverless');
+    const pool = new Pool({ connectionString: env.DATABASE_URL || env.POSTGRES_URL });
+    return new NeonDatabaseAdapter(pool);
   } else {
     throw new Error('No supported database found in environment');
   }
