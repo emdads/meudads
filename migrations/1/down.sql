@@ -1,0 +1,5 @@
+
+DROP TABLE IF EXISTS selections;
+DROP TABLE IF EXISTS ads_active_raw;
+DROP TABLE IF EXISTS campaigns;
+DROP TABLE IF EXISTS clients;
