@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm install --package-lock-only --package-lock false && cp package-vercel.json package.json && npm install && npm run build",
+  "installCommand": "echo 'Skipping default install'",
+  "framework": "nextjs"
+}
