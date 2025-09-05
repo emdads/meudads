@@ -1,0 +1,27 @@
+# Arquivo .env.local para Vercel
+# Copie este conteúdo para .env.local
+
+# Database (Neon PostgreSQL)
+DATABASE_URL="postgresql://usuario:senha@host.neon.tech/nome_do_banco?sslmode=require"
+
+# JWT Secret (generate new one)
+JWT_SECRET="novo_jwt_secret_super_seguro_aqui_64_chars"
+
+# NextAuth Secret (generate new one)
+NEXTAUTH_SECRET="novo_nextauth_secret_super_seguro_aqui"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Email Service (Resend)
+RESEND_API_KEY="re_..."
+FROM_EMAIL="noreply@seudominio.com"
+
+# Meta/Facebook API
+GRAPH_API_VER="v21.0"
+
+# Crypto Keys (generate new ones)
+CRYPTO_KEY="nova_chave_crypto_32_chars_aqui"
+CRYPTO_IV="novo_iv_12_chars"
+
+# Optional: Mocha Users Service (if needed)
+MOCHA_USERS_SERVICE_API_KEY=""
+MOCHA_USERS_SERVICE_API_URL=""

@@ -1,0 +1,5 @@
+id,name,logo_url,ad_account_id,slug,meta_token_enc,is_active,created_at,updated_at,email,temporary_password,password_reset_required
+demo-client-001,Empresa Demo Ltda,,,"empresa-demo",,1,"2025-09-05 01:34:14","2025-09-05 01:34:14","demo@empresa.com.br",,0
+demo-client-002,Startup Inovadora,,,"startup-inovadora",,1,"2025-09-05 01:34:14","2025-09-05 01:34:14","contato@startup.com.br",,0
+client_example_1,Closet da May,"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100&h=100&fit=crop&crop=center",,"closet-da-may",,1,"2025-09-05 01:34:40","2025-09-05 01:34:40","contato@closetdamay.com.br",,0
+client_example_2,Moda Premium,"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=100&h=100&fit=crop&crop=center",,"moda-premium",,1,"2025-09-05 01:34:40","2025-09-05 01:34:40","contato@modapremium.com.br",,0

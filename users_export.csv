@@ -1,0 +1,2 @@
+id,email,password_hash,name,user_type,is_active,last_login_at,password_reset_token,password_reset_expires,created_at,updated_at
+user_super_admin,"admin@meudads.com.br","240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9","Super Admin","admin",1,"2025-09-05 01:35:25",,"","2025-09-05 01:34:13","2025-09-05 01:34:13"
