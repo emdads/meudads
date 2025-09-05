@@ -30,12 +30,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         id: true,
         email: true,
         name: true,
-        user_type: true,
-        is_active: true
+        userType: true,
+        isActive: true
       }
     })
 
-    if (!user || !user.is_active) {
+    if (!user || !user.isActive) {
       return res.status(401).json({ error: 'User not found or inactive' })
     }
 
@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         id: user.id,
         email: user.email,
         name: user.name,
-        userType: user.user_type
+        userType: user.userType
       }
     })
 
