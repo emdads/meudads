@@ -17,6 +17,11 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, loading, hasPermissions, isAdmin, isSuperAdmin } = useAuth();
 
+  // Redireciona para login se não estiver autenticado (antes de mostrar loading)
+  if (!user && !loading) {
+    return <Navigate to="/login" replace />;
+  }
+
   // Mostra loading enquanto verifica autenticação
   if (loading) {
     return (
@@ -29,7 +34,7 @@ export default function ProtectedRoute({
     );
   }
 
-  // Redireciona para login se não estiver autenticado
+  // Redireciona para login se não estiver autenticado após loading
   if (!user) {
     return <Navigate to="/login" replace />;
   }
