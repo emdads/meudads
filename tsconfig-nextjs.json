@@ -28,11 +28,8 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
     ".next/types/**/*.ts",
     "src/shared/**/*",
-    "src/react-app/**/*",
     "pages/**/*",
     "lib/**/*"
   ],
@@ -40,6 +37,8 @@
     "node_modules",
     "src/worker/**/*",
     "src/worker",
+    "src/react-app/**/*",
+    "src/react-app",
     "worker-configuration.d.ts"
   ]
 }
