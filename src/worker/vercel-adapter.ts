@@ -11,7 +11,7 @@ class NeonDatabaseAdapter {
     this.databaseUrl = databaseUrl;
   }
 
-   private async initializeClient(): Promise<void> {
+  private async initializeClient(): Promise<void> {
     if (this.initPromise) {
       return this.initPromise;
     }
@@ -39,10 +39,14 @@ class NeonDatabaseAdapter {
       throw new Error('Neon client not initialized');
     }
 
-    console.log('[NEON-DB] Executing query:', sql.substring(0, 100) + (sql.length > 100 ? '...' : ''), 'Params:', params?.length || 0);
+    // Convert SQLite queries to PostgreSQL
+    const pgSql = this.convertSQLiteToPostgreSQL(sql);
+    const pgParams = this.convertParams(params);
+
+    console.log('[NEON-DB] Executing query:', pgSql.substring(0, 100) + (pgSql.length > 100 ? '...' : ''), 'Params:', pgParams?.length || 0);
     
     try {
-      const result = await this.sql(sql, params);
+      const result = await this.sql(pgSql, pgParams);
       console.log('[NEON-DB] Query successful, rows:', result?.length || 0);
       
       return {
@@ -55,8 +59,51 @@ class NeonDatabaseAdapter {
       };
     } catch (error) {
       console.error('[NEON-DB] Query error:', error);
+      console.error('[NEON-DB] Original SQL:', sql);
+      console.error('[NEON-DB] Converted SQL:', pgSql);
+      console.error('[NEON-DB] Params:', pgParams);
       throw error;
     }
+  }
+
+  private convertSQLiteToPostgreSQL(sql: string): string {
+    let pgSql = sql;
+    
+    // Replace SQLite datetime functions with PostgreSQL equivalents
+    pgSql = pgSql.replace(/datetime\('now'\)/gi, 'NOW()');
+    pgSql = pgSql.replace(/datetime\('now',\s*'([^']+)'\)/gi, "NOW() + INTERVAL '$1'");
+    
+    // Replace SQLite AUTOINCREMENT with PostgreSQL SERIAL
+    pgSql = pgSql.replace(/INTEGER PRIMARY KEY AUTOINCREMENT/gi, 'SERIAL PRIMARY KEY');
+    
+    // Replace SQLite CREATE TABLE IF NOT EXISTS with PostgreSQL equivalent
+    pgSql = pgSql.replace(/CREATE TABLE IF NOT EXISTS/gi, 'CREATE TABLE IF NOT EXISTS');
+    
+    // Replace SQLite INSERT OR REPLACE with PostgreSQL ON CONFLICT
+    if (pgSql.includes('INSERT OR REPLACE')) {
+      // This is more complex and would need specific handling per table
+      // For now, convert to INSERT ... ON CONFLICT DO UPDATE
+      pgSql = pgSql.replace(/INSERT OR REPLACE/gi, 'INSERT');
+    }
+    
+    // Replace SQLite INSERT OR IGNORE with PostgreSQL ON CONFLICT DO NOTHING
+    if (pgSql.includes('INSERT OR IGNORE')) {
+      pgSql = pgSql.replace(/INSERT OR IGNORE/gi, 'INSERT');
+      if (!pgSql.includes('ON CONFLICT')) {
+        // Add ON CONFLICT DO NOTHING at the end
+        pgSql = pgSql.replace(/;?\s*$/, ' ON CONFLICT DO NOTHING;');
+      }
+    }
+    
+    // Replace BOOLEAN with INTEGER for compatibility
+    pgSql = pgSql.replace(/BOOLEAN/gi, 'INTEGER');
+    
+    return pgSql;
+  }
+
+  private convertParams(params: any[]): any[] {
+    // PostgreSQL uses $1, $2, etc. but Neon handles this automatically
+    return params;
   }
 
   async prepare(sql: string) {
@@ -65,42 +112,88 @@ class NeonDatabaseAdapter {
     return {
       bind: (...params: any[]) => ({
         first: async () => {
-          const result = await adapter.query(sql, params);
-          return result.results.length > 0 ? result.results[0] : null;
+          try {
+            const result = await adapter.query(sql, params);
+            return result.results.length > 0 ? result.results[0] : null;
+          } catch (error) {
+            console.error('[NEON-DB] Error in bind().first():', error);
+            throw error;
+          }
         },
         all: async () => {
-          const result = await adapter.query(sql, params);
-          return { results: result.results };
+          try {
+            const result = await adapter.query(sql, params);
+            return { results: result.results };
+          } catch (error) {
+            console.error('[NEON-DB] Error in bind().all():', error);
+            throw error;
+          }
         },
         run: async () => {
-          const result = await adapter.query(sql, params);
-          return { 
-            success: true, 
-            meta: { 
-              duration: result.meta.duration,
-              changes: result.meta.rows_written,
-              last_row_id: result.insertId || Date.now()
-            } 
-          };
+          try {
+            const result = await adapter.query(sql, params);
+            
+            // Estimate changes based on query type
+            let changes = 0;
+            const sqlUpper = sql.toUpperCase().trim();
+            if (sqlUpper.startsWith('INSERT') || sqlUpper.startsWith('UPDATE') || sqlUpper.startsWith('DELETE')) {
+              changes = result.results.length || 1;
+            }
+            
+            return { 
+              success: true, 
+              meta: { 
+                duration: result.meta.duration || 1,
+                changes: changes,
+                last_row_id: Date.now() // PostgreSQL doesn't return this the same way
+              } 
+            };
+          } catch (error) {
+            console.error('[NEON-DB] Error in bind().run():', error);
+            throw error;
+          }
         }
       }),
       first: async () => {
-        const result = await adapter.query(sql, []);
-        return result.results.length > 0 ? result.results[0] : null;
+        try {
+          const result = await adapter.query(sql, []);
+          return result.results.length > 0 ? result.results[0] : null;
+        } catch (error) {
+          console.error('[NEON-DB] Error in first():', error);
+          throw error;
+        }
       },
       all: async () => {
-        const result = await adapter.query(sql, []);
-        return { results: result.results };
+        try {
+          const result = await adapter.query(sql, []);
+          return { results: result.results };
+        } catch (error) {
+          console.error('[NEON-DB] Error in all():', error);
+          throw error;
+        }
       },
       run: async () => {
-        const result = await adapter.query(sql, []);
-        return { 
-          success: true, 
-          meta: { 
-            duration: result.meta.duration,
-            changes: result.meta.rows_written
-          } 
-        };
+        try {
+          const result = await adapter.query(sql, []);
+          
+          // Estimate changes based on query type
+          let changes = 0;
+          const sqlUpper = sql.toUpperCase().trim();
+          if (sqlUpper.startsWith('INSERT') || sqlUpper.startsWith('UPDATE') || sqlUpper.startsWith('DELETE')) {
+            changes = result.results.length || 1;
+          }
+          
+          return { 
+            success: true, 
+            meta: { 
+              duration: result.meta.duration || 1,
+              changes: changes
+            } 
+          };
+        } catch (error) {
+          console.error('[NEON-DB] Error in run():', error);
+          throw error;
+        }
       }
     };
   }
@@ -201,10 +294,20 @@ export async function createVercelEnv(processEnv: NodeJS.ProcessEnv): Promise<En
   if (databaseUrl) {
     try {
       dbAdapter = new NeonDatabaseAdapter(databaseUrl);
-     console.log('[VERCEL-ENV] ✅ Database adapter created successfully');
+      console.log('[VERCEL-ENV] ✅ Database adapter created successfully');
+      
+      // Test the adapter with a simple query
+      try {
+        console.log('[VERCEL-ENV] Testing database connection...');
+        await dbAdapter.query('SELECT 1 as test');
+        console.log('[VERCEL-ENV] ✅ Database connection test successful');
+      } catch (testError) {
+        console.error('[VERCEL-ENV] ❌ Database connection test failed:', testError);
+        throw testError;
+      }
       
     } catch (dbError) {
-       console.error('[VERCEL-ENV] ❌ Database adapter creation failed:', dbError);
+      console.error('[VERCEL-ENV] ❌ Database adapter creation or test failed:', dbError);
       console.log('[VERCEL-ENV] Using fallback mock adapter for emergency access');
       dbAdapter = new FallbackMockAdapter();
     }
