@@ -4,17 +4,31 @@ import type { Env } from './env';
 // Real database adapter for Vercel environment using Neon PostgreSQL
 class NeonDatabaseAdapter {
   private pool: any;
+  private initialized: boolean = false;
+  private databaseUrl: string;
   
   constructor(databaseUrl: string) {
-    // Import Neon client dynamically
-    const { Pool } = require('@neondatabase/serverless');
-    this.pool = new Pool({ 
-      connectionString: databaseUrl,
-      // Configure connection pooling for better performance
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
+    this.databaseUrl = databaseUrl;
+  }
+
+  private async initialize() {
+    if (this.initialized) return;
+    
+    try {
+      // Import Neon client dynamically using ES modules
+      const { Pool } = await import('@neondatabase/serverless');
+      this.pool = new Pool({ 
+        connectionString: this.databaseUrl,
+        // Configure connection pooling for better performance
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+      });
+      this.initialized = true;
+    } catch (error) {
+      console.error('[NEON-DB] Failed to import Neon client:', error);
+      throw new Error('Failed to initialize Neon database client');
+    }
   }
 
   private convertPlaceholders(sql: string): string {
@@ -47,6 +61,8 @@ class NeonDatabaseAdapter {
   }
 
   async query(sql: string, params: any[] = []): Promise<any> {
+    await this.initialize();
+    
     console.log('[NEON-DB] Executing query:', sql.substring(0, 100) + (sql.length > 100 ? '...' : ''), 'Params:', params?.length || 0);
     
     try {
