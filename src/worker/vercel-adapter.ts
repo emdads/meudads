@@ -3,33 +3,46 @@ import type { Env } from './env';
 
 // Real database adapter for Vercel environment using Neon PostgreSQL
 class NeonDatabaseAdapter {
-  private neonClient: any;
+  private sql: any = null;
+  private databaseUrl: string;
+  private initPromise: Promise<void> | null = null;
   
   constructor(databaseUrl: string) {
-    // Dynamic import to avoid require() issues in ES modules
-    this.initializeNeonClient(databaseUrl);
+    this.databaseUrl = databaseUrl;
   }
 
-  private async initializeNeonClient(databaseUrl: string) {
-    try {
-      const { neon } = await import('@neondatabase/serverless');
-      this.neonClient = neon(databaseUrl);
-      console.log('[NEON-DB] ✅ Neon client initialized successfully');
-    } catch (error) {
-      console.error('[NEON-DB] ❌ Failed to initialize Neon client:', error);
-      throw error;
+   private async initializeClient(): Promise<void> {
+    if (this.initPromise) {
+      return this.initPromise;
     }
+
+    this.initPromise = (async () => {
+      try {
+        const { neon } = await import('@neondatabase/serverless');
+        this.sql = neon(this.databaseUrl);
+        console.log('[NEON-DB] ✅ Neon client initialized successfully');
+      } catch (error) {
+        console.error('[NEON-DB] ❌ Failed to initialize Neon client:', error);
+        throw error;
+      }
+    })();
+
+    return this.initPromise;
   }
 
   async query(sql: string, params: any[] = []): Promise<any> {
-    if (!this.neonClient) {
+    if (!this.sql) {
+      await this.initializeClient();
+    }
+    
+    if (!this.sql) {
       throw new Error('Neon client not initialized');
     }
 
     console.log('[NEON-DB] Executing query:', sql.substring(0, 100) + (sql.length > 100 ? '...' : ''), 'Params:', params?.length || 0);
     
     try {
-      const result = await this.neonClient(sql, params);
+      const result = await this.sql(sql, params);
       console.log('[NEON-DB] Query successful, rows:', result?.length || 0);
       
       return {
@@ -188,10 +201,10 @@ export async function createVercelEnv(processEnv: NodeJS.ProcessEnv): Promise<En
   if (databaseUrl) {
     try {
       dbAdapter = new NeonDatabaseAdapter(databaseUrl);
-      console.log('[VERCEL-ENV] ✅ Database connection successful');
+     console.log('[VERCEL-ENV] ✅ Database adapter created successfully');
       
     } catch (dbError) {
-      console.error('[VERCEL-ENV] ❌ Database connection failed:', dbError);
+       console.error('[VERCEL-ENV] ❌ Database adapter creation failed:', dbError);
       console.log('[VERCEL-ENV] Using fallback mock adapter for emergency access');
       dbAdapter = new FallbackMockAdapter();
     }
