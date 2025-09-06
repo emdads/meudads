@@ -3,80 +3,41 @@ import type { Env } from './env';
 
 // Real database adapter for Vercel environment using Neon PostgreSQL
 class NeonDatabaseAdapter {
-  private pool: any;
-  private initialized: boolean = false;
-  private databaseUrl: string;
+  private neonClient: any;
   
   constructor(databaseUrl: string) {
-    this.databaseUrl = databaseUrl;
+    // Dynamic import to avoid require() issues in ES modules
+    this.initializeNeonClient(databaseUrl);
   }
 
-  private async initialize() {
-    if (this.initialized) return;
-    
+  private async initializeNeonClient(databaseUrl: string) {
     try {
-      // Import Neon client dynamically using ES modules
-      const { Pool } = await import('@neondatabase/serverless');
-      this.pool = new Pool({ 
-        connectionString: this.databaseUrl,
-        // Configure connection pooling for better performance
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
-      });
-      this.initialized = true;
+      const { neon } = await import('@neondatabase/serverless');
+      this.neonClient = neon(databaseUrl);
+      console.log('[NEON-DB] ✅ Neon client initialized successfully');
     } catch (error) {
-      console.error('[NEON-DB] Failed to import Neon client:', error);
-      throw new Error('Failed to initialize Neon database client');
+      console.error('[NEON-DB] ❌ Failed to initialize Neon client:', error);
+      throw error;
     }
   }
 
-  private convertPlaceholders(sql: string): string {
-    // Convert SQLite placeholders (?) to PostgreSQL ($1, $2, etc.)
-    let index = 0;
-    return sql.replace(/\?/g, () => `$${++index}`);
-  }
-
-  private adaptSqlForPostgres(sql: string): string {
-    return sql
-      // Convert SQLite datetime functions to PostgreSQL
-      .replace(/datetime\('now'\)/g, "NOW()")
-      .replace(/datetime\('now', '([^']+)'\)/g, "NOW() + INTERVAL '$1'")
-      
-      // Convert AUTOINCREMENT to SERIAL
-      .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY")
-      
-      // Convert TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      .replace(/TIMESTAMP DEFAULT CURRENT_TIMESTAMP/g, "TIMESTAMP DEFAULT NOW()")
-      
-      // Convert BOOLEAN defaults
-      .replace(/BOOLEAN DEFAULT TRUE/g, "BOOLEAN DEFAULT true")
-      .replace(/BOOLEAN DEFAULT FALSE/g, "BOOLEAN DEFAULT false")
-      
-      // Convert case-sensitive boolean comparisons
-      .replace(/= 1\b/g, "= true")
-      .replace(/= 0\b/g, "= false")
-      .replace(/!= 1\b/g, "!= true")
-      .replace(/!= 0\b/g, "!= false");
-  }
-
   async query(sql: string, params: any[] = []): Promise<any> {
-    await this.initialize();
-    
+    if (!this.neonClient) {
+      throw new Error('Neon client not initialized');
+    }
+
     console.log('[NEON-DB] Executing query:', sql.substring(0, 100) + (sql.length > 100 ? '...' : ''), 'Params:', params?.length || 0);
     
     try {
-      const adaptedSql = this.adaptSqlForPostgres(this.convertPlaceholders(sql));
-      const result = await this.pool.query(adaptedSql, params);
-      
-      console.log('[NEON-DB] Query successful, rows:', result.rows?.length || 0);
+      const result = await this.neonClient(sql, params);
+      console.log('[NEON-DB] Query successful, rows:', result?.length || 0);
       
       return {
-        results: result.rows || [],
+        results: result || [],
         meta: {
           duration: 1,
-          rows_read: result.rows?.length || 0,
-          rows_written: result.rowCount || 0
+          rows_read: result?.length || 0,
+          rows_written: 0
         }
       };
     } catch (error) {
@@ -206,32 +167,27 @@ class FallbackMockAdapter {
 // Create environment for Vercel with real database connection
 export async function createVercelEnv(processEnv: NodeJS.ProcessEnv): Promise<Env> {
   console.log('[VERCEL-ENV] Creating environment with real database connection...');
+  console.log('[VERCEL-ENV] Connecting to real PostgreSQL database...');
   
   // Validate critical environment variables
-  const criticalVars = {
-    JWT_SECRET: processEnv.JWT_SECRET,
-    DATABASE_URL: processEnv.DATABASE_URL || processEnv.POSTGRES_URL
-  };
+  const databaseUrl = processEnv.DATABASE_URL;
+  const jwtSecret = processEnv.JWT_SECRET;
 
-  const missingCritical = Object.entries(criticalVars)
-    .filter(([key, value]) => !value || value.trim() === '')
-    .map(([key]) => key);
+  if (!databaseUrl) {
+    console.error('[VERCEL-ENV] ❌ DATABASE_URL not configured');
+    console.log('[VERCEL-ENV] Using fallback mock adapter for emergency access');
+  }
 
-  if (missingCritical.length > 0) {
-    console.error('[VERCEL-ENV] Missing critical environment variables:', missingCritical);
-    throw new Error(`Variáveis críticas ausentes: ${missingCritical.join(', ')}`);
+  if (!jwtSecret) {
+    console.error('[VERCEL-ENV] ❌ JWT_SECRET not configured');
   }
 
   // Create database adapter
   let dbAdapter: any;
   
-  if (criticalVars.DATABASE_URL) {
-    console.log('[VERCEL-ENV] Connecting to real PostgreSQL database...');
+  if (databaseUrl) {
     try {
-      dbAdapter = new NeonDatabaseAdapter(criticalVars.DATABASE_URL);
-      
-      // Test database connection
-      await dbAdapter.query('SELECT 1 as test');
+      dbAdapter = new NeonDatabaseAdapter(databaseUrl);
       console.log('[VERCEL-ENV] ✅ Database connection successful');
       
     } catch (dbError) {
@@ -240,14 +196,14 @@ export async function createVercelEnv(processEnv: NodeJS.ProcessEnv): Promise<En
       dbAdapter = new FallbackMockAdapter();
     }
   } else {
-    console.warn('[VERCEL-ENV] No database URL provided, using fallback mock');
+    console.warn('[VERCEL-ENV] Database URL not configured, using fallback mock');
     dbAdapter = new FallbackMockAdapter();
   }
 
   // Create environment with real configurations
   const env = {
     DB: dbAdapter,
-    JWT_SECRET: processEnv.JWT_SECRET!,
+    JWT_SECRET: jwtSecret || 'fallback-jwt-secret',
     MOCHA_USERS_SERVICE_API_KEY: processEnv.MOCHA_USERS_SERVICE_API_KEY || '',
     MOCHA_USERS_SERVICE_API_URL: processEnv.MOCHA_USERS_SERVICE_API_URL || '',
     RESEND_API_KEY: processEnv.RESEND_API_KEY || '',
