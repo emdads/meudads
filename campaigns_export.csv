@@ -1,0 +1,3 @@
+campaign_id,name,objective,ad_account_id,client_id,created_at,updated_at,ad_account_ref_id
+23858456097330460,"Campanha Closet da May - Verão 2025","CONVERSIONS","123456789012345","client_example_1","2025-09-05 01:34:40","2025-09-05 01:34:40","account_meta_1"
+23858456097330461,"Campanha Moda Premium - Sapatos","TRAFFIC","555666777888999","client_example_2","2025-09-05 01:34:40","2025-09-05 01:34:40","account_meta_2"

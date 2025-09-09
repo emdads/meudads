@@ -1,0 +1,8 @@
+id,name,description,is_system,is_active,created_at,updated_at
+role_super_admin,"Super Admin","Acesso total ao sistema",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_admin,"Administrador","Administrador com acesso amplo",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_client_manager,"Gerente de Cliente","Gerencia clientes específicos",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_client_user,"Usuário Cliente","Acesso apenas aos dados do cliente",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_viewer,"Visualizador","Apenas visualização de dados permitidos",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_manager,"Gerente","Gerencia clientes e usuários",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"
+role_user,"Usuário","Usuário padrão do sistema",1,1,"2025-09-05 01:34:13","2025-09-05 01:34:13"

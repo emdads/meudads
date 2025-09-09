@@ -1,0 +1,9 @@
+id,client_id,platform,account_name,account_id,access_token_enc,refresh_token_enc,token_expires_at,is_active,last_sync_at,sync_status,sync_error,created_at,updated_at
+demo-meta-001,"demo-client-001","meta","Conta Meta Principal","123456789",,,,1,,"pending",,"2025-09-05 01:34:14","2025-09-05 01:34:14"
+demo-pinterest-001,"demo-client-001","pinterest","Conta Pinterest Empresa","549755885175",,,,1,,"pending",,"2025-09-05 01:34:14","2025-09-05 01:34:14"
+demo-tiktok-001,"demo-client-001","tiktok","Conta TikTok Business","7012345678901234567",,,,1,,"pending",,"2025-09-05 01:34:14","2025-09-05 01:34:14"
+demo-meta-002,"demo-client-002","meta","Meta Ads Startup","987654321",,,,1,,"pending",,"2025-09-05 01:34:14","2025-09-05 01:34:14"
+account_meta_1,"client_example_1","meta","Meta Ads - Closet da May","123456789012345","encrypted_token_example_1",,,1,,"success",,"2025-09-05 01:34:40","2025-09-05 01:34:40"
+account_google_1,"client_example_1","google","Google Ads - Closet da May","987654321098765","encrypted_token_example_2",,,1,,"pending",,"2025-09-05 01:34:40","2025-09-05 01:34:40"
+account_meta_2,"client_example_2","meta","Meta Ads - Moda Premium","555666777888999","encrypted_token_example_3",,,1,,"success",,"2025-09-05 01:34:40","2025-09-05 01:34:40"
+account_tiktok_1,"client_example_2","tiktok","TikTok Ads - Moda Premium","111222333444555","encrypted_token_example_4",,,1,,"error",,"2025-09-05 01:34:40","2025-09-05 01:34:40"

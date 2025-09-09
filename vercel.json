@@ -1,0 +1,17 @@
+{
+  "installCommand": "cp package-vercel.json package.json && npm install",
+  "buildCommand": "npx tsc && npx vite build --config vite.config.vercel.ts",
+  "framework": null,
+  "outputDirectory": "dist",
+  
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
