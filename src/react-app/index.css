@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Dark mode variables */
+.dark {
+  color-scheme: dark;
+}
+
+/* Dark mode styles - Apply theme globally */
+.dark,
+.dark * {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
+  color: rgb(226 232 240);
+}
+
+/* Custom dark mode classes that work with Tailwind */
+.dark .bg-gradient-to-br {
+  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
+}
+
+.dark .bg-white {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(226 232 240) !important;
+}
+
+.dark .border-slate-200 {
+  border-color: rgb(51 65 85) !important;
+}
+
+.dark .text-slate-900 {
+  color: rgb(226 232 240) !important;
+}
+
+.dark .text-slate-700 {
+  color: rgb(203 213 225) !important;
+}
+
+.dark .text-slate-600 {
+  color: rgb(148 163 184) !important;
+}
+
+.dark .text-slate-500 {
+  color: rgb(100 116 139) !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: rgb(51 65 85) !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: rgb(71 85 105) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: rgb(51 65 85) !important;
+  border-color: rgb(71 85 105) !important;
+  color: rgb(226 232 240) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: rgb(59 130 246) !important;
+}
+
+.dark input:disabled,
+.dark select:disabled,
+.dark textarea:disabled {
+  background-color: rgb(71 85 105) !important;
+  color: rgb(100 116 139) !important;
+}
+
+/* Additional dark mode support */
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Smooth animations for better stability */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smoothPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced loading animations */
+.loading-enhanced {
+  animation: smoothPulse 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced stability classes */
+.transition-stable {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-stable {
+  animation: smoothPulse 1.5s ease-in-out infinite;
+}
+
+/* Prevent layout shift */
+.stable-layout {
+  min-height: 1px;
+  will-change: auto;
+}
+
+/* Prevent flash of unstyled content */
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+/* Prevent horizontal scroll issues */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Fix table responsiveness */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure proper table sizing */
+table {
+  table-layout: auto;
+  width: 100%;
+  min-width: max-content;
+}
